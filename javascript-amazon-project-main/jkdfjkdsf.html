@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+    <html lang="en">
+    
+    <head>
+        <meta charset="UTF-8">
+        <title>Eye Controlled Mouse (JS)</title>
+        <style>
+            video,
+            canvas {
+                position: absolute;
+                top: 0;
+                left: 0;
+            }
+    
+            #pointer {
+                position: absolute;
+                width: 20px;
+                height: 20px;
+                background: red;
+                border-radius: 50%;
+                pointer-events: none;
+                z-index: 9999;
+            }
+        </style>
+    </head>
+    
+    <body>
+        <video class="input_video" style="display:none"></video>
+        <canvas class="output_canvas" width="640" height="480"></canvas>
+        <div id="pointer"></div>
+    
+        <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+        <script>
+            const videoElement = document.querySelector('.input_video');
+            const canvasElement = document.querySelector('.output_canvas');
+            const canvasCtx = canvasElement.getContext('2d');
+            const pointer = document.getElementById('pointer');
+
+            const faceMesh = new FaceMesh({
+                locateFile: (file) => https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${file}
+            });
+
+            faceMesh.setOptions({
+                maxNumFaces: 1,
+                refineLandmarks: true,
+                minDetectionConfidence: 0.5,
+                minTrackingConfidence: 0.5
+            });
+
+            faceMesh.onResults(results => {
+                canvasCtx.save();
+                canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+                canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
+
+                if (results.multiFaceLandmarks && results.multiFaceLandmarks.length > 0) {
+                    const landmarks = results.multiFaceLandmarks[0];
+                    const eyePoint = landmarks[474]; // Right eye iris center
+
+                    const x = eyePoint.x * window.innerWidth;
+                    const y = eyePoint.y * window.innerHeight;
+
+                    pointer.style.left = ${x}px;
+                    pointer.style.top = ${y}px;
+
+                    // Click detection from upper/lower eyelid
+                    const upperLid = landmarks[159].y;
+                    const lowerLid = landmarks[145].y;
+
+                    if (upperLid - lowerLid > -0.004) {
+                        pointer.style.background = "green";
+                        if (!pointer.clicked) {
+                            pointer.clicked = true;
+                            console.log("Click!");
+                            // Simulate click: add custom logic here if needed
+                            setTimeout(() => pointer.clicked = false, 1000);
+                        }
+                    } else {
+                        pointer.style.background = "red";
+                    }
+                }
+
+                canvasCtx.restore();
+            });
+
+            const camera = new Camera(videoElement, {
+                onFrame: async () => {
+                    await faceMesh.send({ image: videoElement });
+                },
+                width: 640,
+                height: 480
+            });
+            camera.start();
+        </script>
+    </body>
+    
+    </html>
