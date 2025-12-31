@@ -10,16 +10,13 @@ It replicates the basic functionalities of Amazon, allowing users to **browse pr
 ![Project Screenshot](https://via.placeholder.com/800x400.png?text=Project+Screenshot)
 
 ---
-
 ## ⚡ Core Features
 
-- Feature 1:view all products 
-- Feature 2: explore a product 
-- Feature 3: add to cart 
-- Feature 4: automatic calculate total price 
-- Responsive design (works on desktop and mobile)  
-
----
+- **View all products** – Users can see all available items with images and prices.  
+- **Explore a product** – Click on a product to view its details.  
+- **Add to cart** – Add selected products to the shopping cart.  
+- **Automatic price calculation** – Total price updates automatically based on cart items.  
+- **Responsive design** – Works seamlessly on desktop and mobile devices.
 
 ## 🛠 Technologies Used
 
